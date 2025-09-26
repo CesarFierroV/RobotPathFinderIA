@@ -59,6 +59,15 @@ class GeneticAlgoritm:
     def selectMostFitPhenotypes(self):
         self.mostFitPhenotypes = self.phenotypes[int(len(self.phenotypes)/2):]
 
+    # Note for the future add here a new method for tournament, instead of sorting and selecting phenotypes directly by score
+    # There will be tournaments between 3 to 5 individuals and the best will pass to next generation
+    # Then remaining individuals can or can not compete again
+    def selectByTournament(self, k):
+
+        # Our mating pool :)
+        self.phenotypes
+        pass
+
     def crossover(self):
 
         nextGenShape = [1, [2], 3, 4]

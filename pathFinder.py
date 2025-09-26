@@ -1,4 +1,3 @@
-
 # API from RoboDK
 from robodk import robolink    # RoboDK API
 from robodk import robomath    # Robot toolbox
@@ -119,10 +118,10 @@ def getFitness(robot, ORIGIN_POINT, DESTINATION_POINT):
 
         # Save the fitness
         phenotypeProgram[3] = fitness
-        prom = 0
+        averageFitnees = 0
         for phen in geneticAlgorithm.phenotypes:
-            prom = prom + phen[3]
-    print('average fitness: '  + str(prom / len(geneticAlgorithm.phenotypes)))
+            averageFitnees = averageFitnees + phen[3]
+    print('average fitness: '  + str(averageFitnees / len(geneticAlgorithm.phenotypes)))
     
 
 def sortByAxisMovments(phenothypesList):
@@ -146,7 +145,6 @@ def getAxisDifference(pos1, pos2):
     return AxMovPointToPoint
 
 
-
 # Defining path_finder function 
 def path_finder(robot, originPoint, destinationPoint, NPOP=200, NUMBER_OF_POINTS=5, NGEN=10):
 
@@ -167,6 +165,8 @@ def path_finder(robot, originPoint, destinationPoint, NPOP=200, NUMBER_OF_POINTS
         geneticAlgorithm.selectMostFitPhenotypes()
 
         geneticAlgorithm.crossover()
+
+        # Mutation has a 3 out 10 chances to be true, need to increase that? Start doinig it in last generations if fitness is too low
         geneticAlgorithm.mutation()
         geneticAlgorithm.createNewGeneration()
         geneticAlgorithm.shuffleGeneration()

@@ -25,12 +25,12 @@ def main():
     HOME_POINT = RDK.Item('Home')
     ORIGIN_POINT =  RDK.Item('Origin')
     DESTINATION_POINT = RDK.Item('Destination')
-    NPOP = 200
+    NPOP = 80
     NUMBER_OF_POINTS = 3
-    NGEN = 10
+    NGEN = 5
 
     # Generate an instance of the robot
-    robot =RDK.Item('ABB IRB 120-3/0.6 Base')
+    robot =RDK.Item('Fanuc ARC Mate 120iC')
 
     # Cycle the training until find a decent fitness
     fitness = -10
