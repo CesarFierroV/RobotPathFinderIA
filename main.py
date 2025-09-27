@@ -25,8 +25,8 @@ def main():
     HOME_POINT = RDK.Item('Home')
     ORIGIN_POINT =  RDK.Item('Origin')
     DESTINATION_POINT = RDK.Item('Destination')
-    NPOP = 80
-    NUMBER_OF_POINTS = 3
+    NPOP = 60
+    NUMBER_OF_POINTS = 2
     NGEN = 5
 
     # Generate an instance of the robot

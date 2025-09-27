@@ -62,15 +62,27 @@ class GeneticAlgoritm:
     # Note for the future add here a new method for tournament, instead of sorting and selecting phenotypes directly by score
     # There will be tournaments between 3 to 5 individuals and the best will pass to next generation
     # Then remaining individuals can or can not compete again
-    def selectByTournament(self, k):
+    def selectByTournament(self):
 
-        # Our mating pool :)
-        self.phenotypes
-        pass
+        # Elite individuals will pass automatically to next generation
+        elitism = 6
+        self.mostFitPhenotypes = self.phenotypes[0:elitism]
+
+        numOfIndividualsPassingNextGen = int(len(self.phenotypes)/2) - elitism
+
+        # Update the population without the elite
+        self.phenotypes = self.phenotypes[elitism:]
+
+        for i in range(0, numOfIndividualsPassingNextGen):
+            tournamentCompetitors = random.choices(self.phenotypes, k=5)
+            winner = (max(tournamentCompetitors, key=itemgetter(3)))
+            self.mostFitPhenotypes.append(winner)
 
     def crossover(self):
 
-        nextGenShape = [1, [2], 3, 4]
+        random.shuffle(self.mostFitPhenotypes)
+
+        #nextGenShape = [1, [2], 3, 4]
 
         # List to save next generation with the size of the most fit list
         self.nextPhenotypeGen = []

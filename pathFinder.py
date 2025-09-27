@@ -162,14 +162,17 @@ def path_finder(robot, originPoint, destinationPoint, NPOP=200, NUMBER_OF_POINTS
         geneticAlgorithm.sortPhenotyopesByFitness()
 
         # Obtain the most fit phenotypes
-        geneticAlgorithm.selectMostFitPhenotypes()
+        #geneticAlgorithm.selectMostFitPhenotypes()
+
+        # obtain parents by selecting them by tournament
+        geneticAlgorithm.selectByTournament()
 
         geneticAlgorithm.crossover()
 
         # Mutation has a 3 out 10 chances to be true, need to increase that? Start doinig it in last generations if fitness is too low
         geneticAlgorithm.mutation()
         geneticAlgorithm.createNewGeneration()
-        geneticAlgorithm.shuffleGeneration()
+        #geneticAlgorithm.shuffleGeneration()
     getFitness(robot, originPoint, destinationPoint)
 
     
