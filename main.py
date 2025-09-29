@@ -25,28 +25,23 @@ def main():
     HOME_POINT = RDK.Item('Home')
     ORIGIN_POINT =  RDK.Item('Origin')
     DESTINATION_POINT = RDK.Item('Destination')
-    NPOP = 60
-    NUMBER_OF_POINTS = 2
-    NGEN = 5
+    NPOP = 1200
+    NUMBER_OF_POINTS = 5
+    NGEN = 8
 
     # Generate an instance of the robot
-    robot =RDK.Item('Fanuc ARC Mate 120iC')
+    robot =RDK.Item('Fanuc M-900iB/700')
 
     # Cycle the training until find a decent fitness
-    fitness = -10
-    while fitness < -3:
+    fitness = -80
+    while fitness < -10:
         path = path_finder(robot,
                             ORIGIN_POINT, DESTINATION_POINT,
                             NPOP, NUMBER_OF_POINTS, NGEN)
         fitness = path[3]
-    
-    # Crear un nuevo algoritmo que genere los fenotipos en base al punto actual del robot
-    # Empezando desde el origen crea un nuevo punto y se dirige a el, de este nuevo punto crea un nuevo punto
-    # y se dirige a el, asi el n numero de puntos que contenga el fenotipo
-    # Asi se pueden generar puntos mas cercanos, con menos distancia cartesiana y menos movimiento de los ejes
-    # que generando los puntos random
-    # se pueden definir un rango de solo +- 10 grados para generar el siguiente punto
-    
+        print('champ fitness', fitness)
+     
+    print(path[0])
     print(path[1])
     while(True):
         testBestPath(robot, path, ORIGIN_POINT, DESTINATION_POINT)

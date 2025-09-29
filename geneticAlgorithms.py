@@ -16,16 +16,22 @@ class GeneticAlgoritm:
 
     # The phenotypes will have in the genotype the number of points in them and the coordinates
     #    for every point
+    #    index 0 = number of points
+    #    index 1 = list containing coordinates of every point in index 0
+    #    index 2 = stores if the points are Linear or Joint (not working for now)
+    #    index 3 = will store the fitness of the individual
+    #    index 4 = used to store the information of the path, used to get the fitness (collisions, not reachable points, axis and cartesian movment)
+
     def createEmptyPhenotypes(self, numberOfPhenotypes):
 
-        phenotypeShape = [1, [2], 3]
+        phenotypeShape = [1, [2], 3, 4, [5]]
         
         for phenotype in range(0, numberOfPhenotypes):
-            self.phenotypes.append([1, [2], 3, 4, 5])
+            self.phenotypes.append([1, [2], 3, 4, [5]])
 
 
     # Create the genomas for the phenotype, returns a list with three elements, 
-    def createGenes(self, maximumNumberOfPoints):
+    def createGenes(self, maximumNumberOfPoints, bias_active):
 
         # We asign the genes (points and coordinates) to the phenotyes
         for phenotype in range(0, len(self.phenotypes)):
@@ -33,14 +39,14 @@ class GeneticAlgoritm:
             pointsCoordinates = []
 
             # Define the number of points that the program will have
-            numberOfPoints = int(random.random()*(maximumNumberOfPoints - 1)) + 1
+            numberOfPoints = int(random.uniform(1, maximumNumberOfPoints + 1))
 
             self.phenotypes[phenotype][0] = numberOfPoints
 
             # Define the coordinates of every point in XYZwpr format
             for point in range(1, numberOfPoints + 1):
 
-                coordinatesXYZwpr = self.generateCoordinates()
+                coordinatesXYZwpr = self.generateCoordinates(bias_active)
                 pointsCoordinates.append(coordinatesXYZwpr)
 
             self.phenotypes[phenotype][1] = pointsCoordinates
@@ -82,16 +88,14 @@ class GeneticAlgoritm:
 
         random.shuffle(self.mostFitPhenotypes)
 
-        #nextGenShape = [1, [2], 3, 4]
-
         # List to save next generation with the size of the most fit list
         self.nextPhenotypeGen = []
                                  
         for couple in range(0, len(self.mostFitPhenotypes), 2):
 
             # Define the next generation shape and resets the values
-            nextGenPhenotypesChild1 = [1, [2], 3, 4]
-            nextGenPhenotypesChild2 = [1, [2], 3, 4]
+            nextGenPhenotypesChild1 = [1, [2], 3, 4, [5]]
+            nextGenPhenotypesChild2 = [1, [2], 3, 4, [5]]
 
             parent1 = self.mostFitPhenotypes[couple]
             parent2 = self.mostFitPhenotypes[couple + 1]
@@ -127,7 +131,7 @@ class GeneticAlgoritm:
     
     # Creates a method that can randolmy select a individual in the new generation
     # and mutates one or a few of its characteristics.
-    def mutation(self):
+    def mutation(self, bias_active):
         for newPhenotype in self.nextPhenotypeGen:
             # Generate a random number between 1 and 10,
             # if the number is 7 a mutation will occur in the phenotype
@@ -141,7 +145,7 @@ class GeneticAlgoritm:
                 pointToMutate = int((random.random()*newPhenotype[0]-1))
 
                 # Generate new coordinates for the mutated point
-                coordinatesXYZwpr = self.generateCoordinates()
+                coordinatesXYZwpr = self.generateCoordinates(bias_active)
                 try:
                     newPhenotype[1][pointToMutate] = coordinatesXYZwpr
                 except:
@@ -155,7 +159,7 @@ class GeneticAlgoritm:
     def shuffleGeneration(self):
         self.phenotype = random.shuffle(self.phenotypes)
     
-    def generateCoordinates(self):
+    def generateCoordinates(self, bias_active):
 
         # Coordinates to define
         coordiantesToDefine = ['X', 'Y', 'Z', 'w', 'p', 'r']
@@ -180,9 +184,48 @@ class GeneticAlgoritm:
                 if isNegative:
                     coordinateValue = coordinateValue * (-1)
 
+            if bias_active:
+
+                # Set a specific range for coordinates, bias the candidates towards the results we want
+                X_range = (0, 1135) #
+                Y_range = (-806.000, 580.000) # Plane between Origin and Destination
+                # Z_range = (0, 0) # Not used for now
+                if coordinate == 'Y':
+                    coordinateValue = random.uniform(Y_range[0], Y_range[1])
+                if coordinate == 'X':
+                    coordinateValue = random.uniform(X_range[0], X_range[1])
+
             coordinatesXYZwpr.append(coordinateValue)
         return coordinatesXYZwpr
     
 
     def getCoordinatesOfThePhenotype():
         pass
+
+    def calculateFitnessFunc(self):
+
+        for phenotype in self.phenotypes:
+
+            totalCollisions, totalNotReachPoints, totalAxisMovment, totalCartMovment, cycleTime = phenotype[4]
+
+            collisionPunishment = 3
+            notReachablePointPunishment = 5
+            fitness = 0
+
+            # Depending on the parameters we define the fitness
+            fitness = fitness + (totalAxisMovment / (-10000))
+            fitness = fitness + (totalCartMovment / (-5000))
+
+            # Not reachable points punishment
+            fitness = fitness - (totalNotReachPoints * notReachablePointPunishment)
+        
+            # Collision punisments
+            fitness = fitness - (totalCollisions * collisionPunishment)
+            if totalCollisions == 0:
+                fitness = fitness + 1
+            
+            phenotype[3] = fitness
+
+    def calculateFitness(self):
+        self.calculateFitnessFunc()
+

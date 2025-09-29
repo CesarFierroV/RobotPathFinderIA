@@ -18,21 +18,85 @@ from geneticAlgorithms import GeneticAlgoritm
 # Create an instance of the GeneticAlgorithms class
 geneticAlgorithm = GeneticAlgoritm()
 
+
+
+# Defining path_finder function 
+def path_finder(robot, originPoint, destinationPoint, NPOP=200, NUMBER_OF_POINTS=5, NGEN=10):
+
+    activate_bias = False
+    print(NPOP, NUMBER_OF_POINTS, NGEN)
+
+    # Create the Phenotypes and their genomas
+    geneticAlgorithm.createEmptyPhenotypes(NPOP)
+    geneticAlgorithm.createGenes(NUMBER_OF_POINTS, bias_active=activate_bias)
+
+    highestFitness = -1000
+
+    for i in range(0, NGEN):
+        print('Generation: ' + str(i + 1))
+        testPaths(robot, originPoint, destinationPoint) # test all the individuals and stores the fitness for everyone
+
+        # gets and stores the fitness of every individual and saves it in index [3]
+        geneticAlgorithm.calculateFitness()
+
+        #geneticAlgorithm
+        #sum_of_second_elements = sum(itemgetter(3)(fitness) for fitness in geneticAlgorithm.phenotypes)
+        averageFitnees = sum(itemgetter(3)(fitness) for fitness in geneticAlgorithm.phenotypes)/len(geneticAlgorithm.phenotypes)
+        print('Average Fitness:', averageFitnees)
+
+        # Sort the phenotypes by fitness
+        geneticAlgorithm.sortPhenotyopesByFitness()
+
+        # obtain parents by selecting them by tournament
+        geneticAlgorithm.selectByTournament()
+        geneticAlgorithm.crossover()
+        geneticAlgorithm.mutation(bias_active=activate_bias)
+
+        geneticAlgorithm.createNewGeneration()
+
+    #print('Generation: ' + str(NGEN)
+    testPaths(robot, originPoint, destinationPoint)
+    # gets and stores the fitness of every individual and saves it in index [3]
+    geneticAlgorithm.calculateFitness()
+
+    
+    for individual in geneticAlgorithm.phenotypes:
+        if individual[3] > highestFitness:
+            mostFitIndividual = individual
+            highestFitness = individual[3]
+  
+    print(mostFitIndividual[3])
+    return  mostFitIndividual
+
+def testBestPath(robot, mostFitPhenotype, originPoint, destinationPoint):
+    robot.MoveJ(originPoint)
+    for pointCoordinates in mostFitPhenotype[1]:
+        viaPoint = Fanuc_2_Pose(pointCoordinates)
+        robot.MoveJ(viaPoint)
+
+    robot.MoveJ(destinationPoint)
+    mostFitPhenotype[1].reverse()
+
+    # reverse path
+    for pointCoordinates in mostFitPhenotype[1]:
+        viaPoint = Fanuc_2_Pose(pointCoordinates)
+        robot.MoveJ(viaPoint)
+    
+    robot.MoveJ(originPoint)
+
+
+
 # Define the test and fitnness funtion
-def getFitness(robot, ORIGIN_POINT, DESTINATION_POINT):
-    fitness = 0
-    # Define punishments
-    collisionPunishment = 3
-    notReachablePointPunishment = 5
+def testPaths(robot, ORIGIN_POINT, DESTINATION_POINT):
 
     # Test all the phenotypes in the current generation
     for phenotypeProgram in geneticAlgorithm.phenotypes:
 
         # Initializate variables/parameters for fitness for every phenotype
-        TotalAxisMovment = 0
+        totalAxisMovment = 0
         totalCartMovment = 0
         collisionCounter = 0
-        fitness = 0
+        notReachablepoints = 0
 
         CycleTimeInit = time.perf_counter()
 
@@ -62,66 +126,52 @@ def getFitness(robot, ORIGIN_POINT, DESTINATION_POINT):
                 # Test robots for collisions
                 if robot.MoveJ_Test(oldPointJoint, robot.Joints().list()) == 0:
                     pass
-                    #fitness = fitness + 1
                 else:
-                    collisionCounter = collisionCounter + collisionPunishment
+                    collisionCounter = collisionCounter + 1
                 
                 robot.MoveJ(viaPoint)
             except:
-                fitness = fitness - notReachablePointPunishment
+                notReachablepoints = notReachablepoints + 1
 
             # Get the difference in the axis movments
             AxMovPointToPoint = getAxisDifference(oldPointJoint, robot.Joints().list())
-            TotalAxisMovment = TotalAxisMovment + AxMovPointToPoint
+            totalAxisMovment = totalAxisMovment + AxMovPointToPoint
 
             # Get the difference in the cartesian plane
             CartdMovPointToPoint = getCartesianDifference(oldCartesianValue, Pose_2_Fanuc(robot.Pose()))
             totalCartMovment = totalCartMovment + CartdMovPointToPoint
         
-
         # Destination position
         try:
             oldPointJoint = robot.Joints().list()
             robot.MoveJ(DESTINATION_POINT)
             if robot.MoveJ_Test(oldPointJoint, robot.Joints().list()) == 0:
                 pass
-                #fitness = fitness + 1
             else:
-                collisionCounter = collisionCounter + collisionPunishment
+                collisionCounter = collisionCounter + 1
                 
             
             robot.MoveJ(DESTINATION_POINT)
 
             # Get the difference in the axis movments
             AxMovPointToPoint = getAxisDifference(oldPointJoint, robot.Joints().list())
-            TotalAxisMovment = TotalAxisMovment + AxMovPointToPoint
+            totalAxisMovment = totalAxisMovment + AxMovPointToPoint
 
             # Get the difference in the cartesian plane
             CartdMovPointToPoint = getCartesianDifference(oldCartesianValue, Pose_2_Fanuc(robot.Pose()))
             totalCartMovment = totalCartMovment + CartdMovPointToPoint
         # If the program has a no reachable
         except:
-            fitness = fitness - notReachablePointPunishment
+            notReachablepoints = notReachablepoints + 1
         
         # Time in seconds
         CycleTimeFinish = time.perf_counter()
         CycleTime  = CycleTimeFinish - CycleTimeInit
 
-        # Counter punishments
-        fitness = fitness - collisionCounter
-        if collisionCounter == 0:
-            fitness = fitness + 1
-        
-        # Depending on the parameters we define the fitness
-        fitness = fitness + (TotalAxisMovment / (-10000))
-        fitness = fitness + (totalCartMovment / (-5000))
+        # get fitness of individual
+        phenotypeProgram[4] = [collisionCounter, notReachablepoints, totalAxisMovment, totalCartMovment, CycleTime]
+        #phenotypeProgram[3] = geneticAlgorithm.getFitnessFunc(collisionCounter, notReachablepoints, totalAxisMovment, totalCartMovment, CycleTime)
 
-        # Save the fitness
-        phenotypeProgram[3] = fitness
-        averageFitnees = 0
-        for phen in geneticAlgorithm.phenotypes:
-            averageFitnees = averageFitnees + phen[3]
-    print('average fitness: '  + str(averageFitnees / len(geneticAlgorithm.phenotypes)))
     
 
 def sortByAxisMovments(phenothypesList):
@@ -145,49 +195,4 @@ def getAxisDifference(pos1, pos2):
     return AxMovPointToPoint
 
 
-# Defining path_finder function 
-def path_finder(robot, originPoint, destinationPoint, NPOP=200, NUMBER_OF_POINTS=5, NGEN=10):
-
-    # Create the Phenotypes and their genomas
-    geneticAlgorithm.createEmptyPhenotypes(NPOP)
-    geneticAlgorithm.createGenes(NUMBER_OF_POINTS)
-
-    highestFitness = -1000
-
-    for i in range(0, NGEN):
-        print('Generation: ' + str(i + 1))
-        getFitness(robot, originPoint, destinationPoint)
-
-        # Sort the phenotypes by fitness
-        geneticAlgorithm.sortPhenotyopesByFitness()
-
-        # Obtain the most fit phenotypes
-        #geneticAlgorithm.selectMostFitPhenotypes()
-
-        # obtain parents by selecting them by tournament
-        geneticAlgorithm.selectByTournament()
-
-        geneticAlgorithm.crossover()
-
-        # Mutation has a 3 out 10 chances to be true, need to increase that? Start doinig it in last generations if fitness is too low
-        geneticAlgorithm.mutation()
-        geneticAlgorithm.createNewGeneration()
-        #geneticAlgorithm.shuffleGeneration()
-    getFitness(robot, originPoint, destinationPoint)
-
     
-    for individual in geneticAlgorithm.phenotypes:
-        if individual[3] > highestFitness:
-            mostFitIndividual = individual
-            highestFitness = individual[3]
-  
-    print(mostFitIndividual[3])
-    return  mostFitIndividual
-
-def testBestPath(robot, mostFitPhenotype, originPoint, destinationPoint):
-    robot.MoveJ(originPoint)
-    for pointCoordinates in mostFitPhenotype[1]:
-        viaPoint = Fanuc_2_Pose(pointCoordinates)
-        robot.MoveJ(viaPoint)
-
-    robot.MoveJ(destinationPoint)
