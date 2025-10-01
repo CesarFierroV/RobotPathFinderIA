@@ -84,6 +84,38 @@ class GeneticAlgoritm:
             winner = (max(tournamentCompetitors, key=itemgetter(3)))
             self.mostFitPhenotypes.append(winner)
 
+    def selectiveCrossover(self): # This selective crossover will give priority to the genes of the best parent
+        random.shuffle(self.mostFitPhenotypes)
+
+        # List to save next generation with the size of the most fit list
+        self.nextPhenotypeGen = []
+                                 
+        for couple in range(0, len(self.mostFitPhenotypes), 2):
+
+            # Define the next generation shape and resets the values
+            nextGenPhenotypesChild1 = [1, [2], 3, 4, [5]]
+            nextGenPhenotypesChild2 = [1, [2], 3, 4, [5]]
+
+            parent1 = self.mostFitPhenotypes[couple]
+            parent2 = self.mostFitPhenotypes[couple + 1]
+
+            # Select best parent
+            bestParent = max([parent1, parent2], key=itemgetter(3))
+            worstParent = min([parent1, parent2], key=itemgetter(3))
+
+            # First child will be identical to the best parent except for one random point
+            nextGenPhenotypesChild1[0], nextGenPhenotypesChild1[1] = bestParent[0], bestParent[1]
+            nextGenPhenotypesChild1[1][int(random.uniform(0, len(bestParent[1])-1))] = random.choice(worstParent[1])
+
+            # Second Child will be similar to worst parent but with the coordinates of first parent
+            nextGenPhenotypesChild2[0], nextGenPhenotypesChild2[1] = worstParent[0], bestParent[1][0:worstParent[0]-1]
+            
+            nextGenPhenotypesChild1[2] = 'J'
+            nextGenPhenotypesChild2[2] = 'L'
+
+            self.nextPhenotypeGen.append(nextGenPhenotypesChild1)
+            self.nextPhenotypeGen.append(nextGenPhenotypesChild2)
+
     def crossover(self):
 
         random.shuffle(self.mostFitPhenotypes)
@@ -225,7 +257,45 @@ class GeneticAlgoritm:
                 fitness = fitness + 1
             
             phenotype[3] = fitness
+    
+    def calculateFitnessFunc2(self):
+
+        for phenotype in self.phenotypes:
+
+            fitness = 0 # initialize fitness
+
+            totalCollisions, totalNotReachPoints, totalAxisMovment, totalCartMovment, cycleTime = phenotype[4]
+            #numberOfPoints = phenotype[4] + 1
+            numCollFreePoints = phenotype[0] + 1 - totalCollisions #phenotype[4] = number of points in program + 1 because of destination point
+
+            #programCollFree = 0
+            #if totalCollisions == 0: programCollFree = 1
+            programCollFree = int(totalCollisions == 0)
+
+            w1 = 0.3 # Weight for number of points free of collision
+            w2 = 1 # Weight for program collision free
+            w3 = 0.05 # weight for collisions found
+            w4 = 0.8 # weight for not reachable points
+
+            # Formula for normalized fitness
+            fitness = w1*numCollFreePoints + w2*programCollFree - w3*totalCollisions - w4*totalNotReachPoints
+
+            # Depending on the parameters we define the fitness
+            #fitness = fitness + (totalAxisMovment / (-10000))
+            #fitness = fitness + (totalCartMovment / (-5000))
+
+            phenotype[3] = fitness
+    
+    def showfitnessDataChampion(self, champion):
+        totalCollisions, totalNotReachPoints, totalAxisMovment, totalCartMovment, cycleTime = champion[4]
+        print('Total colisiones: ', totalCollisions)
+        print('Numero de puntos sin colision: ', champion[0] + 1 - totalCollisions)
+        print('Puntos no alcanzables: ', totalNotReachPoints)
+
 
     def calculateFitness(self):
-        self.calculateFitnessFunc()
+        self.calculateFitnessFunc2()
 
+    def temporalSolutionUpdatePointsNumber(self):
+        for phenotype in self.phenotypes:
+            phenotype[0] = len(phenotype[1])

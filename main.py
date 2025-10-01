@@ -14,7 +14,7 @@ import time
 from operator import itemgetter
 
 # Import the path_finder based on genetic algorithms
-from pathFinder import path_finder, testBestPath
+from pathFinder import path_finder, testBestPath, showMostFitIndividualInfo
 
 # Link to RoboDK
 RDK = robolink.Robolink()
@@ -25,24 +25,25 @@ def main():
     HOME_POINT = RDK.Item('Home')
     ORIGIN_POINT =  RDK.Item('Origin')
     DESTINATION_POINT = RDK.Item('Destination')
-    NPOP = 1200
-    NUMBER_OF_POINTS = 5
-    NGEN = 8
+    NPOP = 80
+    NUMBER_OF_POINTS = 3
+    NGEN = 6
 
     # Generate an instance of the robot
     robot =RDK.Item('Fanuc M-900iB/700')
 
     # Cycle the training until find a decent fitness
-    fitness = -80
-    while fitness < -10:
+    fitness = -1
+    while fitness < 0:
         path = path_finder(robot,
                             ORIGIN_POINT, DESTINATION_POINT,
                             NPOP, NUMBER_OF_POINTS, NGEN)
         fitness = path[3]
         print('champ fitness', fitness)
      
-    print(path[0])
+    print('numero de puntos', path[0])
     print(path[1])
+    showMostFitIndividualInfo(path)
     while(True):
         testBestPath(robot, path, ORIGIN_POINT, DESTINATION_POINT)
 
