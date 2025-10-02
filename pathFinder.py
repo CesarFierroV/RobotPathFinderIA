@@ -18,12 +18,13 @@ from geneticAlgorithms import GeneticAlgoritm
 # Create an instance of the GeneticAlgorithms class
 geneticAlgorithm = GeneticAlgoritm()
 
-
-
 # Defining path_finder function 
 def path_finder(robot, originPoint, destinationPoint, NPOP=200, NUMBER_OF_POINTS=5, NGEN=10):
 
     activate_bias = False
+
+    # Reset population
+    geneticAlgorithm.resetPopulation()
 
     # Create the Phenotypes and their genomas
     geneticAlgorithm.createEmptyPhenotypes(NPOP)
@@ -36,35 +37,21 @@ def path_finder(robot, originPoint, destinationPoint, NPOP=200, NUMBER_OF_POINTS
         testPaths(robot, originPoint, destinationPoint) # test all the individuals and stores the fitness for everyone
 
         # gets and stores the fitness of every individual and saves it in index [3]
-        geneticAlgorithm.calculateFitness()
+        geneticAlgorithm.calculateFitness(verbosity=True)
 
-        #geneticAlgorithm
-        #sum_of_second_elements = sum(itemgetter(3)(fitness) for fitness in geneticAlgorithm.phenotypes)
-        averageFitnees = sum(itemgetter(3)(fitness) for fitness in geneticAlgorithm.phenotypes)/len(geneticAlgorithm.phenotypes)
-        print('Average Fitness:', averageFitnees)
-
-        mostFitIndividual = max(geneticAlgorithm.phenotypes, key=itemgetter(3))
-        print("Champ gen fitnesss: ", mostFitIndividual[3])
-        if mostFitIndividual[3] > 1:
-            break
-
-        # Sort the phenotypes by fitness
         geneticAlgorithm.sortPhenotyopesByFitness()
-
-        # obtain parents by selecting them by tournament
         geneticAlgorithm.selectByTournament()
-        geneticAlgorithm.selectiveCrossover()
+        #geneticAlgorithm.selectMostFitPhenotypes()
+        geneticAlgorithm.crossover()
         geneticAlgorithm.mutation(bias_active=activate_bias)
 
         geneticAlgorithm.createNewGeneration()
         geneticAlgorithm.temporalSolutionUpdatePointsNumber()
 
-    #print('Generation: ' + str(NGEN)
     testPaths(robot, originPoint, destinationPoint)
     # gets and stores the fitness of every individual and saves it in index [3]
-    geneticAlgorithm.calculateFitness()
+    geneticAlgorithm.calculateFitness(verbosity=False)
     mostFitIndividual = max(geneticAlgorithm.phenotypes, key=itemgetter(3))
-    print("Champ gen fitnesss: ", mostFitIndividual[3])
 
     return  mostFitIndividual
 

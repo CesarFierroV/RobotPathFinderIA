@@ -11,6 +11,9 @@ class GeneticAlgoritm:
         #random.seed(1023)
         self.phenotypes = []
 
+    def resetPopulation(self):
+        self.phenotypes = []
+
     # Method to create the phenotypes
     # For this application the phenotypes will be the programs to test
 
@@ -60,10 +63,11 @@ class GeneticAlgoritm:
             
 
     def sortPhenotyopesByFitness(self):
-        self.phenotypes = sorted(self.phenotypes, key=itemgetter(3))
+        self.phenotypes = sorted(self.phenotypes, key=itemgetter(3), reverse=True)
+        for i in self.phenotypes: print(i[3])
 
     def selectMostFitPhenotypes(self):
-        self.mostFitPhenotypes = self.phenotypes[int(len(self.phenotypes)/2):]
+        self.mostFitPhenotypes = self.phenotypes[:int(len(self.phenotypes)/2)]
 
     # Note for the future add here a new method for tournament, instead of sorting and selecting phenotypes directly by score
     # There will be tournaments between 3 to 5 individuals and the best will pass to next generation
@@ -98,14 +102,33 @@ class GeneticAlgoritm:
 
             parent1 = self.mostFitPhenotypes[couple]
             parent2 = self.mostFitPhenotypes[couple + 1]
+            #print(parent1)
+            #print("")
+            #print(parent2)
+            #print("**********************************")
 
             # Select best parent
             bestParent = max([parent1, parent2], key=itemgetter(3))
             worstParent = min([parent1, parent2], key=itemgetter(3))
+            #print(bestParent)
+            #print("")
+            #print(worstParent)
+
+            #print("**********************************")
 
             # First child will be identical to the best parent except for one random point
+            #try:
+                
             nextGenPhenotypesChild1[0], nextGenPhenotypesChild1[1] = bestParent[0], bestParent[1]
             nextGenPhenotypesChild1[1][int(random.uniform(0, len(bestParent[1])-1))] = random.choice(worstParent[1])
+            #print(bestParent[1])
+            #print(len(bestParent[1]))
+            #print("**********************************")
+                #if couple == 3 or couple ==5:
+                    #print(bestParent[1], bestParent[2])
+                    #print(len(bestParent[1]))
+            #except:
+                #if couple == 3 or couple ==5:
 
             # Second Child will be similar to worst parent but with the coordinates of first parent
             nextGenPhenotypesChild2[0], nextGenPhenotypesChild2[1] = worstParent[0], bestParent[1][0:worstParent[0]-1]
@@ -219,13 +242,15 @@ class GeneticAlgoritm:
             if bias_active:
 
                 # Set a specific range for coordinates, bias the candidates towards the results we want
-                X_range = (0, 1135) #
-                Y_range = (-806.000, 580.000) # Plane between Origin and Destination
-                # Z_range = (0, 0) # Not used for now
+                X_range = (200, 1000) #
+                Y_range = (-950, 1300) # Plane between Origin and Destination
+                Z_range = (0, 1500) # Not used for now
                 if coordinate == 'Y':
                     coordinateValue = random.uniform(Y_range[0], Y_range[1])
                 if coordinate == 'X':
                     coordinateValue = random.uniform(X_range[0], X_range[1])
+                if coordinate == 'Z':
+                    coordinateValue = random.uniform(Z_range[0], Z_range[1])
 
             coordinatesXYZwpr.append(coordinateValue)
         return coordinatesXYZwpr
@@ -258,14 +283,14 @@ class GeneticAlgoritm:
             
             phenotype[3] = fitness
     
-    def calculateFitnessFunc2(self):
+    def calculateFitnessFunc2(self, verbosity):
 
         for phenotype in self.phenotypes:
 
             fitness = 0 # initialize fitness
 
             totalCollisions, totalNotReachPoints, totalAxisMovment, totalCartMovment, cycleTime = phenotype[4]
-            #numberOfPoints = phenotype[4] + 1
+            numberOfPoints = phenotype[0]
             numCollFreePoints = phenotype[0] + 1 - totalCollisions #phenotype[4] = number of points in program + 1 because of destination point
 
             #programCollFree = 0
@@ -274,17 +299,24 @@ class GeneticAlgoritm:
 
             w1 = 0.3 # Weight for number of points free of collision
             w2 = 1 # Weight for program collision free
-            w3 = 0.05 # weight for collisions found
+            w3 = 0.4 # weight for collisions found
             w4 = 0.8 # weight for not reachable points
+            w5 = 1 # weight for total axis movment 
+            w6 = 0.3 # weight for total number of points
+
+            # TO ADD LATER
+            # we can add a path tracker, the minor the distance to the destination
+            # more fitness will get, points after that one will have to follow
+            # if not fitness will decrease
 
             # Formula for normalized fitness
-            fitness = w1*numCollFreePoints + w2*programCollFree - w3*totalCollisions - w4*totalNotReachPoints
-
-            # Depending on the parameters we define the fitness
-            #fitness = fitness + (totalAxisMovment / (-10000))
-            #fitness = fitness + (totalCartMovment / (-5000))
+            fitness = w1*numCollFreePoints + w2*programCollFree - w3*totalCollisions - w4*totalNotReachPoints - w5*totalAxisMovment/-10000 - w6*numberOfPoints
 
             phenotype[3] = fitness
+        
+        if verbosity:
+            averageFitnees = sum(itemgetter(3)(fitness) for fitness in self.phenotypes)/len(self.phenotypes)
+            print('Average Fitness:', averageFitnees)
     
     def showfitnessDataChampion(self, champion):
         totalCollisions, totalNotReachPoints, totalAxisMovment, totalCartMovment, cycleTime = champion[4]
@@ -293,8 +325,8 @@ class GeneticAlgoritm:
         print('Puntos no alcanzables: ', totalNotReachPoints)
 
 
-    def calculateFitness(self):
-        self.calculateFitnessFunc2()
+    def calculateFitness(self, verbosity=False):
+        self.calculateFitnessFunc2(verbosity)
 
     def temporalSolutionUpdatePointsNumber(self):
         for phenotype in self.phenotypes:

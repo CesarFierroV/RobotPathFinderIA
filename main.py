@@ -25,24 +25,24 @@ def main():
     HOME_POINT = RDK.Item('Home')
     ORIGIN_POINT =  RDK.Item('Origin')
     DESTINATION_POINT = RDK.Item('Destination')
-    NPOP = 80
-    NUMBER_OF_POINTS = 3
-    NGEN = 6
+    NPOP = 24
+    NUMBER_OF_POINTS = 5
+    NGEN = 5
 
     # Generate an instance of the robot
     robot =RDK.Item('Fanuc M-900iB/700')
 
     # Cycle the training until find a decent fitness
     fitness = -1
-    while fitness < 0:
+    while fitness < 1:
         path = path_finder(robot,
                             ORIGIN_POINT, DESTINATION_POINT,
                             NPOP, NUMBER_OF_POINTS, NGEN)
         fitness = path[3]
-        print('champ fitness', fitness)
      
     print('numero de puntos', path[0])
     print(path[1])
+    print("champion fitness: ", path[3])
     showMostFitIndividualInfo(path)
     while(True):
         testBestPath(robot, path, ORIGIN_POINT, DESTINATION_POINT)
