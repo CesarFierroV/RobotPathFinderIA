@@ -25,7 +25,7 @@ def main():
     HOME_POINT = RDK.Item('Home')
     ORIGIN_POINT =  RDK.Item('Origin')
     DESTINATION_POINT = RDK.Item('Destination')
-    NPOP = 24
+    NPOP = 20
     NUMBER_OF_POINTS = 5
     NGEN = 5
 
@@ -34,7 +34,7 @@ def main():
 
     # Cycle the training until find a decent fitness
     fitness = -1
-    while fitness < 1:
+    while fitness < 0.25:
         path = path_finder(robot,
                             ORIGIN_POINT, DESTINATION_POINT,
                             NPOP, NUMBER_OF_POINTS, NGEN)

@@ -205,6 +205,10 @@ class GeneticAlgoritm:
                     newPhenotype[1][pointToMutate] = coordinatesXYZwpr
                 except:
                     pass
+    
+    def agressiveMutation(self, bias_active):
+        # Mutate half of population
+        pass
 
     # Takes the mostfit phenotypes from the previous generation
     # And the new phenotypes and creates a new generation
@@ -242,15 +246,26 @@ class GeneticAlgoritm:
             if bias_active:
 
                 # Set a specific range for coordinates, bias the candidates towards the results we want
-                X_range = (200, 1000) #
-                Y_range = (-950, 1300) # Plane between Origin and Destination
-                Z_range = (0, 1500) # Not used for now
+                X_range = (500, 1600) #
+                Y_range = (-500, 1800) # Plane between Origin and Destination
+                Z_range = (-500, 2500) # Not used for now
                 if coordinate == 'Y':
                     coordinateValue = random.uniform(Y_range[0], Y_range[1])
                 if coordinate == 'X':
                     coordinateValue = random.uniform(X_range[0], X_range[1])
                 if coordinate == 'Z':
                     coordinateValue = random.uniform(Z_range[0], Z_range[1])
+
+                # Set a specific range for coordinates, bias the candidates towards the results we want
+                w_range = (-200, 0) #
+                p_range = (-10, 10) # Plane between Origin and Destination
+                r_range = (-10, 10) # Not used for now
+                if coordinate == 'w':
+                    coordinateValue = random.uniform(w_range[0], w_range[1])
+                if coordinate == 'p':
+                    coordinateValue = random.uniform(p_range[0], p_range[1])
+                if coordinate == 'r':
+                    coordinateValue = random.uniform(r_range[0], r_range[1])
 
             coordinatesXYZwpr.append(coordinateValue)
         return coordinatesXYZwpr

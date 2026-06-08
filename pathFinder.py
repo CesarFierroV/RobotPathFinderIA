@@ -21,7 +21,7 @@ geneticAlgorithm = GeneticAlgoritm()
 # Defining path_finder function 
 def path_finder(robot, originPoint, destinationPoint, NPOP=200, NUMBER_OF_POINTS=5, NGEN=10):
 
-    activate_bias = False
+    activate_bias = True
 
     # Reset population
     geneticAlgorithm.resetPopulation()
