@@ -8,9 +8,10 @@ The Genetic Algorith was built from scratch and evaluates the robot paths using 
 -Robot reachabilty
 -Collisions detected
 
+The algorithm generates random paths between the Origin point and the Destinaton point and then optimizes evry candidate.
 Each candidate path is assigned a fitness score according to these metrics, through selection, corssover and mutation. The population evolves after a few generations progressively improving path quality.
 
-The highest-fitness solution is selected and displayed to the user.
+The highest-fitness solution is selected and displayed to the user. 
 
 Generation 1
 ![Robot movments in Gen1](media/gen1.gif)
@@ -28,5 +29,6 @@ Domain Injection
 
 Domain injection in evolutionary algorithms refers to embedding domain-specific knowledge, constraints, or representations into the optimization process to guide search toward more relevant, robust, or interpretable solutions. 
 
-Generation 5
+Generation 5 
 ![Robot movments in Gen1](media/gen5_training_complete_domain_injection.gif)
+
