@@ -75,7 +75,7 @@ class GeneticAlgoritm:
     def selectByTournament(self):
 
         # Elite individuals will pass automatically to next generation
-        elitism = 6
+        elitism = 2
         self.mostFitPhenotypes = self.phenotypes[0:elitism]
 
         numOfIndividualsPassingNextGen = int(len(self.phenotypes)/2) - elitism
@@ -84,7 +84,7 @@ class GeneticAlgoritm:
         self.phenotypes = self.phenotypes[elitism:]
 
         for i in range(0, numOfIndividualsPassingNextGen):
-            tournamentCompetitors = random.choices(self.phenotypes, k=5)
+            tournamentCompetitors = random.choices(self.phenotypes, k=3)
             winner = (max(tournamentCompetitors, key=itemgetter(3)))
             self.mostFitPhenotypes.append(winner)
 
@@ -206,9 +206,34 @@ class GeneticAlgoritm:
                 except:
                     pass
     
-    def agressiveMutation(self, bias_active):
-        # Mutate half of population
-        pass
+    def agressiveMutation(self, maximumNumberOfPoints, bias_active):
+        #print(len(self.phenotypes))
+                # We asign the genes (points and coordinates) to the phenotyes
+        for phenotype in range(int((len(self.phenotypes)) // 2), len(self.phenotypes)):
+            #print(phenotype)
+
+            pointsCoordinates = []
+
+            # Define the number of points that the program will have
+            numberOfPoints = int(random.uniform(1, maximumNumberOfPoints + 1))
+
+            self.phenotypes[phenotype][0] = numberOfPoints
+
+            # Define the coordinates of every point in XYZwpr format
+            for point in range(1, numberOfPoints + 1):
+
+                coordinatesXYZwpr = self.generateCoordinates(bias_active)
+                pointsCoordinates.append(coordinatesXYZwpr)
+
+            self.phenotypes[phenotype][1] = pointsCoordinates
+
+            # We assign the last gen of the genoma to the phenotype (if the movment is Linear or Joint)
+            isLinear = random.choice([True, False])
+            if isLinear:
+                self.phenotypes[phenotype][2] = 'L'
+            else:
+                self.phenotypes[phenotype][2] = 'J'
+
 
     # Takes the mostfit phenotypes from the previous generation
     # And the new phenotypes and creates a new generation
@@ -246,9 +271,9 @@ class GeneticAlgoritm:
             if bias_active:
 
                 # Set a specific range for coordinates, bias the candidates towards the results we want
-                X_range = (500, 1600) #
+                X_range = (200, 1600) #
                 Y_range = (-500, 1800) # Plane between Origin and Destination
-                Z_range = (-500, 2500) # Not used for now
+                Z_range = (800, 1600)
                 if coordinate == 'Y':
                     coordinateValue = random.uniform(Y_range[0], Y_range[1])
                 if coordinate == 'X':
@@ -257,9 +282,9 @@ class GeneticAlgoritm:
                     coordinateValue = random.uniform(Z_range[0], Z_range[1])
 
                 # Set a specific range for coordinates, bias the candidates towards the results we want
-                w_range = (-200, 0) #
-                p_range = (-10, 10) # Plane between Origin and Destination
-                r_range = (-10, 10) # Not used for now
+                w_range = (-181, -179) #
+                p_range = (-1, 1) # Plane between Origin and Destination
+                r_range = (-1, 1) # Not used for now
                 if coordinate == 'w':
                     coordinateValue = random.uniform(w_range[0], w_range[1])
                 if coordinate == 'p':

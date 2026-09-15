@@ -37,13 +37,13 @@ def path_finder(robot, originPoint, destinationPoint, NPOP=200, NUMBER_OF_POINTS
         testPaths(robot, originPoint, destinationPoint) # test all the individuals and stores the fitness for everyone
 
         # gets and stores the fitness of every individual and saves it in index [3]
-        geneticAlgorithm.calculateFitness(verbosity=True)
+        geneticAlgorithm.calculateFitness(verbosity=False)
 
         geneticAlgorithm.sortPhenotyopesByFitness()
         geneticAlgorithm.selectByTournament()
         #geneticAlgorithm.selectMostFitPhenotypes()
         geneticAlgorithm.crossover()
-        geneticAlgorithm.mutation(bias_active=activate_bias)
+        geneticAlgorithm.agressiveMutation(NUMBER_OF_POINTS, bias_active=activate_bias)
 
         geneticAlgorithm.createNewGeneration()
         geneticAlgorithm.temporalSolutionUpdatePointsNumber()
@@ -72,6 +72,7 @@ def testPaths(robot, ORIGIN_POINT, DESTINATION_POINT):
 
         # Move robot to Origin position to start path testing
         robot.MoveJ(ORIGIN_POINT)
+        #print(phenotypeProgram)
         
         for pointCoordinates in phenotypeProgram[1]:#phenotypeProgram[1]:
 
@@ -87,10 +88,12 @@ def testPaths(robot, ORIGIN_POINT, DESTINATION_POINT):
 
             # Convert new point coordinates XYZwpr to robot Pose Mat
             viaPoint = Fanuc_2_Pose(pointCoordinates)
+            #print(viaPoint)
 
             # Move Robot
             try:
                 # Move robot to next point
+                #print(pointCoordinates)
                 robot.MoveJ(viaPoint)
 
                 # Test robots for collisions
@@ -102,6 +105,7 @@ def testPaths(robot, ORIGIN_POINT, DESTINATION_POINT):
                 robot.MoveJ(viaPoint)
             except:
                 notReachablepoints = notReachablepoints + 1
+                print('not reachable')
 
             # Get the difference in the axis movments
             AxMovPointToPoint = getAxisDifference(oldPointJoint, robot.Joints().list())
