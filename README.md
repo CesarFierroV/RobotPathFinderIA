@@ -12,5 +12,6 @@ Each candidate path is assigned a fitness score according to these metrics, thro
 
 The highest-fitness solution is selected and displayed to the user.
 
-Still in development...
-Documentation in progress...
+Generation 1
+![Robot movments in Gen1](media/gen1.gif)
+At the beggining of training,robot moves are completly random without any ogical sequence, often crashing into the obstacles or attempting to go to non reachable points.
