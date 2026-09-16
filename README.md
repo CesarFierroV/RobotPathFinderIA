@@ -41,6 +41,6 @@ Generation 5
 | Generation 5 | About 10 minutes | Feasible path without detected collisions |
 
 
-##Current limitations
+## Current limitations
 - Population quickly converges into similar individuals (loss of genetic diversity) 
 - Current implementation does not guarantee a 100% collision free path
