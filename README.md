@@ -42,5 +42,5 @@ Generation 5
 
 
 ## Current limitations
-- Population quickly converges into similar individuals (loss of genetic diversity) 
-- Current implementation does not guarantee a 100% collision free path
+- Population quickly converges into similar individuals (loss of genetic diversity).
+- Current implementation does not guarantee a 100% collision free path.
